@@ -262,9 +262,12 @@
             <section className="text-center space-y-5">
               <div className="relative w-28 h-28 mx-auto">
                 <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#dad6df] via-[#e8e2ee] to-[#f4eef8] p-1 shadow-md">
-                  <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center text-[#8c6b99] border border-[#e5deeb] overflow-hidden">
-                    <span className="text-2xl">✨</span>
-                    <span className="text-[10px] uppercase font-bold tracking-wider mt-1 text-[#6b2d4b]">Pedra da Lua</span>
+                  <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center border border-[#e5deeb] overflow-hidden">
+                    <img 
+                      src="COLE_O_LINK_DA_SUA_FOTO_AQUI" 
+                      alt="Pedra da Lua Moldes" 
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 </div>
                 <span className="absolute bottom-1 right-1 bg-[#6b2d4b] text-white p-1.5 rounded-full shadow-sm text-xs">
@@ -282,7 +285,7 @@
               </div>
 
               <p className="text-sm text-[#6c5e75] max-w-md mx-auto leading-relaxed">
-                Bem-vinda ao nosso cantinho especial! Aqui podes sugerir os próximos moldes de silicone para resina que gostarias de ver na loja e votar nas tuas ideias favoritas.
+                 Aqui podes sugerir os próximos moldes de silicone para resina que gostarias de ver na loja e votar nas tuas ideias favoritas.
               </p>
 
               <div className="flex justify-center gap-3 pt-2">
@@ -452,7 +455,7 @@
                     rows={3}
                     value={ideia}
                     onChange={(e) => setIdeia(e.target.value)}
-                    placeholder="Descreva sua ideia livremente (ex: Uma Lua, delicada para uma bandeja de resina/gesso/velas) fale o formato/tema e a funcionalidade desejada..."
+                    placeholder="Descreva sua ideia livremente (ex: Uma Lua, delicada para bandeja de resina/gesso/velas) fale o formato/tema e a funcionalidade desejada..."
                     className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs text-[#3b3342] outline-none focus:border-[#8c6b99] focus:bg-white transition-all resize-none shadow-sm"
                   />
                 </div>
