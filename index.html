@@ -18,29 +18,33 @@
 <body class="bg-[#f7f5f9] text-[#4a4453] font-sans pb-16">
   <div id="root"></div>
 
+  <!-- Scripts do Firebase (CDN v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
   <!-- Código da Aplicação -->
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Configuração do Firebase (pode manter as suas chaves aqui)
     const firebaseConfig = {
-      apiKey: "SUA_API_KEY_AQUI",
-      authDomain: "seu-projeto.firebaseapp.com",
-      projectId: "seu-projeto-id",
-      storageBucket: "seu-projeto.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef"
+      apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
+      authDomain: "quero-moldes.firebaseapp.com",
+      databaseURL: "https://quero-moldes-default-rtdb.firebaseio.com",
+      projectId: "quero-moldes",
+      storageBucket: "quero-moldes.firebasestorage.app",
+      messagingSenderId: "466176200603",
+      appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
+      measurementId: "G-95793WYVPC"
     };
 
-    // Inicialização segura do Firebase compatível com CDN
     let db = null;
     try {
-      if (typeof firebase !== 'undefined') {
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
       }
+      db = firebase.firestore();
     } catch (e) {
-      console.log("Firebase carregando...");
+      console.error("Erro ao inicializar Firebase:", e);
     }
 
     const PRODUTOS_PORTFOLIO = [
@@ -49,7 +53,7 @@
         titulo: "Moldes PPULBATU",
         categoria: "Mundo KDrama",
         descricao: "Moldes de silicone exclusivos inspirados nos mascotes adoráveis para resina.",
-        imagem: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80",
+        imagem: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=500&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
@@ -57,7 +61,7 @@
         titulo: "Broches Sailor Moon",
         categoria: "Portal Otaku",
         descricao: "Detalhes em alta precisão para peças celestiais e colecionáveis.",
-        imagem: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
+        imagem: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=500&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
@@ -65,7 +69,7 @@
         titulo: "Chaveiros & Abridores BTS",
         categoria: "Kawaii Vibes",
         descricao: "Matrizes feitas sob medida para criar chaveiros perfeitos e funcionais.",
-        imagem: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80",
+        imagem: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=500&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
@@ -73,7 +77,7 @@
         titulo: "Evoluções Eevee & Animais",
         categoria: "Clube dos Baixinhos",
         descricao: "Moldes translúcidos ideais para resina epóxi e artesanato criativo.",
-        imagem: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=400&q=80",
+        imagem: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=500&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       }
     ];
@@ -90,14 +94,7 @@
       const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
 
       useEffect(() => {
-        if (!db) {
-          // Dados de exemplo caso o Firebase demore a carregar na CDN
-          setSugestoes([
-            { id: '1', nome: 'Mariana', ideia: 'Molde de gatinho fofinho estilo kawaii!', curtidas: 5 },
-            { id: '2', nome: 'Juliana', ideia: 'Moldes com tema estelar e luas.', curtidas: 3 }
-          ]);
-          return;
-        }
+        if (!db) return;
         const unsubscribe = db.collection('sugestoes').onSnapshot((snapshot) => {
           const lista = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -152,7 +149,7 @@
         if (ordenacao === 'curtidas') {
           return (b.curtidas || 0) - (a.curtidas || 0);
         }
-        return 0;
+        return (b.criadoEm?.seconds || 0) - (a.criadoEm?.seconds || 0);
       });
 
       const handleLoginAdmin = (e) => {
@@ -186,11 +183,12 @@
               <!-- Foto de Apresentação -->
               <div className="flex justify-center">
                 <img 
-                  src="https://lh3.googleusercontent.com/rd-gg/AJWXcNd4KSTsnPBR2frF6TXAwxuyGvk6JOVpckAv2_yfmqZgv8aSbW8ucSxu6ZZuXv9eE_Lh1I5fkYVYdyMaf_Tr1rn6eghM2zeaNB0EKXTtu9zRZuTnlVAPkIEuFtZMcQnMFcQlDU0RIyp2PIEoX7irR7gdvxZP05zE0AQVxuetDkYF4LianoDHlAGLkRPJqn0z9dG8--0klGktdW0yiPmRLWA1wP14BdcIFIkQcaIcOlUaP3td3-vOq3-93iT1gX938Wr3oSFZ3cYsF8lXeg0yGTDpPd5HQWJUgHfpKMVgFf09xTPQYbpwWO28drXEHQ8KZmXedEx3EmwEMpx57Bm-N6ONmA4s13cM1Vi3qhHXBoisTG3d_VJ7U3SrUyQBq7L0sVAKfg7ejLnIdBYEZzuuD_ZtwTB8hCWntj5zVMbSV6DJXiUvZiA15dORyJCCb1em6QFFXQcWkvwCujWZR1MjQYkw2F1u3Pw3lRjnc_Y2fVmJ-l3yy2uQm5gHKRo4x4vbvS7pdk7sJ0gO1GnAcCq75aBMlzr1R1pNPcaSRHixkqnKgXN8DtjlC2Q9idrOLI3CITryj8qdKrDHyJmL9oRDUnaSS6Z8k98P69worZXC7UH5wFJAcYWm0xl0NCoIpVyi_U9rLat5EARef_gwwFl3UpDAVsowauP3zhDrWa2cA1dHH1ew80EVuFqpQQ9ou5NM47ju-hiZRM1dugd8NAgLcZFGI9rwDpkFQTeDp-g9N3FilqZIvTJG_fng0nPm5datQHIWxNU3bkUMD4mWdRo7Uq8zM70ArYR3WuPs45oVvgo0dqjotqxPvxnXw6izlpBHSyZQGl8Zswbr60rSivZe0Pc0uhF_wV3I_RntE8Dt5o6cRELMFlaqVSvqhxIp8GsmQVzWN8Cyyhai-uNocm-p8tcTo7fTOuCLlyRZZJA8Az-CDdKDXJPuH8ajR8yLa5ioQ3qCsSo2TgQgZfw9A_vuJ7yDZA2yYXLZWIBSpyJ_vvrbvC9sfJU_K9G6jWqsaAW_TsUZPOCeezhECBHMpUmGsJNs4gZ8nhzROofp1JWLGyiIYv7ysujYh0hu54XCc-BBJgylZha--iDMQxXyWkAH1A1_i2WEsJCBHkUGhoxnHAtSLXsyWH1oH1L2Ant9OmvBRmNHhAAz3uszQn29U4vWiOrlic5oPoUCpE6h-rnZNoJgzm7vsTXD5TcRGZeC-32oPs2duSZaNMiStr0apCDJufQBGL5r0vaxzCnMJ0bkdy08WLUFjoWVaVlaWFnGK1koua1Ptq4di1-6FY_593Un7DTtGntuP9RKaJq87ga7bHgCidePyNQoPJAmdylD6ZGYdOuiRnG_1sgUcSLRvkwNWsswimdlR7yw7DC4sWQ3jx6yACnOduHcyAKHB4tUzczrikTC5xb0V-wkaug1kqRxKDB5vbYxnrRzQi-bzv0nHSwqkOiruZPIg3Ni_ZS_oIGxRiHBgWzbjhV8mh7jw9UBUJHKtADsE_6QE3ok2my5xEnYMYOAPQCSdtRGtvu3jr_aJFNSEJ3To7MXvws-QtKy1dlzIIlYrJhDsTYMe3EutTWDhyhqTkhrDk0=s1600" 
+                  src="COLE_O_LINK_DA_SUA_FOTO_AQUI" 
                   alt="Pedra da Lua Moldes" 
                   className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover shadow-md border-4 border-white"
                 />
               </div>
+
               <h1 className="text-2xl font-serif text-[#3b3342]">Criando juntas com amor e resina</h1>
               <p className="text-sm text-[#73657a] max-w-lg mx-auto leading-relaxed">
                 Bem-vinda ao nosso espaço de criação! Ajude a escolher os próximos moldes de silicone que vão para a loja e vote nas ideias favoritas.
@@ -250,28 +248,34 @@
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                {sugestoesOrdenadas.map((item) => (
-                  <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
-                        {isAdmin && item.whatsapp && (
-                          <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200">
-                            WhatsApp: {item.whatsapp}
-                          </span>
-                        )}
+                {sugestoes.length === 0 ? (
+                  <p className="col-span-2 text-center text-sm text-[#93829e] py-8">
+                    Nenhuma ideia enviada ainda. Seja a primeira a sugerir abaixo! ✨
+                  </p>
+                ) : (
+                  sugestoesOrdenadas.map((item) => (
+                    <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
+                          {isAdmin && item.whatsapp && (
+                            <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200">
+                              WhatsApp: {item.whatsapp}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
                       </div>
-                      <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
-                    </div>
 
-                    <button
-                      onClick={() => handleCurtir(item.id)}
-                      className="flex items-center gap-1.5 bg-[#fbf8fd] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full w-fit"
-                    >
-                      ❤️ <span>{item.curtidas || 0}</span>
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        onClick={() => handleCurtir(item.id)}
+                        className="flex items-center gap-1.5 bg-[#fbf8fd] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full w-fit"
+                      >
+                        ❤️ <span>{item.curtidas || 0}</span>
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 
@@ -350,27 +354,9 @@
           )}
         </div>
       );
-
-      // Carregar o script do Firebase no navegador se necessário
     }
 
-    const scripts = [
-      "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js",
-      "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"
-    ];
-
-    let loadedCount = 0;
-    scripts.forEach(src => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = () => {
-        loadedCount++;
-        if (loadedCount === scripts.length) {
-          ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        }
-      };
-      document.head.appendChild(s);
-    });
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
