@@ -18,31 +18,35 @@
 <body class="bg-[#f7f5f9] text-[#4a4453] font-sans pb-16">
   <div id="root"></div>
 
+  <!-- Scripts do Firebase (CDN v8) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
   <!-- Código da Aplicação -->
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Configuração do Firebase (pode manter as suas chaves aqui)
+    // Configuração exata do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
-  authDomain: "quero-moldes.firebaseapp.com",
- URL do banco de dados: "https://quero-moldes-default-rtdb.firebaseio.com",
-  projectId: "quero-moldes",
-  storageBucket: "quero-moldes.firebasestorage.app",
- mensagemSenderId: "466176200603",
-  appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
-  measurementId: "G-95793WYVPC"}; Inicialize Firebaseconst app = initializeApp(firebaseConfig);const analytics = getAnalytics(app
-    );
+      authDomain: "quero-moldes.firebaseapp.com",
+      databaseURL: "https://quero-moldes-default-rtdb.firebaseio.com",
+      projectId: "quero-moldes",
+      storageBucket: "quero-moldes.firebasestorage.app",
+      messagingSenderId: "466176200603",
+      appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
+      measurementId: "G-95793WYVPC"
+    };
 
-    // Inicialização segura do Firebase compatível com CDN
+    // Inicialização segura do Firebase
     let db = null;
     try {
-      if (typeof firebase !== 'undefined') {
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-        db = firebase.firestore();
       }
+      db = firebase.firestore();
     } catch (e) {
-      console.log("Firebase carregando...");
+      console.error("Erro ao inicializar Firebase:", e);
     }
 
     const PRODUTOS_PORTFOLIO = [
@@ -92,14 +96,7 @@
       const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
 
       useEffect(() => {
-        if (!db) {
-          // Dados de exemplo caso o Firebase demore a carregar na CDN
-          setSugestoes([
-            { id: '1', nome: 'Mariana', ideia: 'Molde de gatinho fofinho estilo kawaii!', curtidas: 5 },
-            { id: '2', nome: 'Juliana', ideia: 'Moldes com tema estelar e luas.', curtidas: 3 }
-          ]);
-          return;
-        }
+        if (!db) return;
         const unsubscribe = db.collection('sugestoes').onSnapshot((snapshot) => {
           const lista = snapshot.docs.map(doc => ({
             id: doc.id,
@@ -154,7 +151,7 @@
         if (ordenacao === 'curtidas') {
           return (b.curtidas || 0) - (a.curtidas || 0);
         }
-        return 0;
+        return (b.criadoEm?.seconds || 0) - (a.criadoEm?.seconds || 0);
       });
 
       const handleLoginAdmin = (e) => {
@@ -244,28 +241,34 @@
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
-                {sugestoesOrdenadas.map((item) => (
-                  <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
-                        {isAdmin && item.whatsapp && (
-                          <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200">
-                            WhatsApp: {item.whatsapp}
-                          </span>
-                        )}
+                {sugestoes.length === 0 ? (
+                  <p className="col-span-2 text-center text-sm text-[#93829e] py-8">
+                    Nenhuma ideia enviada ainda. Seja a primeira a sugerir abaixo! ✨
+                  </p>
+                ) : (
+                  sugestoesOrdenadas.map((item) => (
+                    <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
+                          {isAdmin && item.whatsapp && (
+                            <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200">
+                              WhatsApp: {item.whatsapp}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
                       </div>
-                      <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
-                    </div>
 
-                    <button
-                      onClick={() => handleCurtir(item.id)}
-                      className="flex items-center gap-1.5 bg-[#fbf8fd] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full w-fit"
-                    >
-                      ❤️ <span>{item.curtidas || 0}</span>
-                    </button>
-                  </div>
-                ))}
+                      <button
+                        onClick={() => handleCurtir(item.id)}
+                        className="flex items-center gap-1.5 bg-[#fbf8fd] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full w-fit"
+                      >
+                        ❤️ <span>{item.curtidas || 0}</span>
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 
@@ -344,27 +347,9 @@
           )}
         </div>
       );
-
-      // Carregar o script do Firebase no navegador se necessário
     }
 
-    const scripts = [
-      "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js",
-      "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"
-    ];
-
-    let loadedCount = 0;
-    scripts.forEach(src => {
-      const s = document.createElement('script');
-      s.src = src;
-      s.onload = () => {
-        loadedCount++;
-        if (loadedCount === scripts.length) {
-          ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        }
-      };
-      document.head.appendChild(s);
-    });
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
