@@ -26,7 +26,7 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-  // Configuração do Firebase
+    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
       authDomain: "quero-moldes.firebaseapp.com",
@@ -37,17 +37,6 @@
       appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
       measurementId: "G-95793WYVPC"
     };
-
-    let db = null;
-    try {
-      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
-        // Inicializa passando explicitamente a databaseURL
-        firebase.initializeApp(firebaseConfig, "quero-moldes");
-      }
-      db = firebase.database();
-    } catch (e) {
-      console.error("Erro ao inicializar Firebase:", e);
-    }
 
     let db = null;
     try {
@@ -107,7 +96,7 @@
       },
       {
         id: 'sug-2',
-        nome: 'Erica Rezende',
+        nome: 'Bia Rezende',
         ideia: 'Kit de moldes para mini marcadores de página com temática de flores delicadas e prensadas.',
         whatsapp: '(21) 99887-1122',
         curtidas: 18,
@@ -170,7 +159,6 @@
           const itemRef = db.ref(`sugestoes/${id}/curtidas`);
           itemRef.transaction((curtidasAtuais) => (curtidasAtuais || 0) + 1);
         } else {
-          // Atualiza os de exemplo na memória
           const itemIndex = INITIAL_SUGGESTIONS.findIndex(s => s.id === id);
           if (itemIndex !== -1) {
             INITIAL_SUGGESTIONS[itemIndex].curtidas += 1;
@@ -275,4 +263,261 @@
               <div className="relative w-28 h-28 mx-auto">
                 <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#dad6df] via-[#e8e2ee] to-[#f4eef8] p-1 shadow-md">
                   <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center text-[#8c6b99] border border-[#e5deeb] overflow-hidden">
-                    <span className="text-2
+                    <span className="text-2xl">✨</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider mt-1 text-[#6b2d4b]">Pedra da Lua</span>
+                  </div>
+                </div>
+                <span className="absolute bottom-1 right-1 bg-[#6b2d4b] text-white p-1.5 rounded-full shadow-sm text-xs">
+                  ❤️
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                <span className="text-xs uppercase tracking-widest text-[#8c6b99] font-bold bg-[#ede8f2] px-3 py-1 rounded-full border border-[#e0d6e8]">
+                  Espaço de Co-Criação
+                </span>
+                <h1 className="text-2xl sm:text-3xl font-serif text-[#3b3342] pt-1">
+                  Criando juntas com amor e resina
+                </h1>
+              </div>
+
+              <p className="text-sm text-[#6c5e75] max-w-md mx-auto leading-relaxed">
+                Bem-vinda ao nosso cantinho especial! Aqui podes sugerir os próximos moldes de silicone para resina que gostarias de ver na loja e votar nas tuas ideias favoritas.
+              </p>
+
+              <div className="flex justify-center gap-3 pt-2">
+                <a 
+                  href="https://www.pedradaluamoldes.com.br" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-[#6b2d4b] hover:bg-[#57233c] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all hover:-translate-y-0.5"
+                >
+                  🛍️ <span>Visitar Loja Oficial</span>
+                </a>
+              </div>
+            </section>
+
+            <section className="space-y-5">
+              <div className="flex justify-between items-end border-b border-[#e5deeb] pb-3">
+                <div>
+                  <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
+                    Conheça nosso trabalho
+                  </span>
+                  <h2 className="text-xl font-serif text-[#3b3342]">Moldes & Coleções Atuais</h2>
+                </div>
+                <a 
+                  href="https://www.pedradaluamoldes.com.br" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#6b2d4b] hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <span>Ver loja completa &rarr;</span>
+                </a>
+              </div>
+
+              <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin">
+                {INITIAL_PRODUCTS.map((prod) => (
+                  <div 
+                    key={prod.id} 
+                    className="min-w-[240px] sm:min-w-[260px] max-w-[260px] bg-white rounded-2xl p-3.5 border border-[#ede8f2] shadow-sm flex flex-col justify-between snap-start hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-3">
+                      <div className="h-36 rounded-xl bg-[#f5f1f8] overflow-hidden relative group">
+                        <img 
+                          src={prod.imagem} 
+                          alt={prod.titulo} 
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <span className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-[10px] text-[#57233c] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                          {prod.categoria}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xs font-bold text-[#3b3342]">{prod.titulo}</h3>
+                        <p className="text-[11px] text-[#6c5e75] leading-relaxed line-clamp-2">
+                          {prod.descricao}
+                        </p>
+                      </div>
+                    </div>
+
+                    <a 
+                      href={prod.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 text-[11px] font-semibold text-[#6b2d4b] hover:text-[#57233c] bg-[#fbf5f8] hover:bg-[#f5e9f0] border border-[#f0e2ea] py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <span>Ver no site</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-[#e5deeb] pb-3">
+                <div>
+                  <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
+                    A Comunidade Imagina Junto
+                  </span>
+                  <h2 className="text-xl font-serif text-[#3b3342]">Ideias que podem virar realidade</h2>
+                </div>
+
+                <div className="flex items-center gap-2 text-xs bg-white px-3 py-1.5 rounded-xl border border-[#dcd3e3] shadow-sm">
+                  <span className="text-[#6c5e75]">Ordenar:</span>
+                  <select 
+                    value={ordenacao}
+                    onChange={(e) => setOrdenacao(e.target.value)}
+                    className="bg-transparent font-semibold text-[#3b3342] outline-none cursor-pointer"
+                  >
+                    <option value="curtidas">Mais curtidas 🔥</option>
+                    <option value="recentes">Mais recentes ✨</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {sugestoesOrdenadas.map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4 hover:border-[#dcd3e3] transition-colors"
+                  >
+                    <div className="space-y-2.5">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="font-semibold text-xs text-[#3b3342] bg-[#f7f5f9] px-2.5 py-1 rounded-lg border border-[#e5deeb]">
+                          {item.nome}
+                        </span>
+                        
+                        {isAdmin && item.whatsapp && (
+                          <span className="text-[10px] font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded border border-emerald-200 font-semibold">
+                            WhatsApp: {item.whatsapp}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#52465c] leading-relaxed">
+                        "{item.ideia}"
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex justify-between items-center border-t border-[#f5f1f8]">
+                      <button
+                        onClick={() => handleCurtir(item.id)}
+                        className="flex items-center gap-1.5 bg-[#fbf8fd] hover:bg-[#f3ebf7] border border-[#e8dbe8] text-[#6b2d4b] font-medium text-xs px-3.5 py-1.5 rounded-full transition-all active:scale-95 shadow-sm"
+                      >
+                        ❤️ <span>{item.curtidas || 0}</span>
+                      </button>
+
+                      <span className="text-[10px] text-[#a193ab]">
+                        {item.criadoEm ? new Date(item.criadoEm).toLocaleDateString('pt-BR') : 'Recentemente'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6 relative overflow-hidden">
+              <div className="text-center space-y-1.5 relative z-10">
+                <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
+                  Sua voz faz parte da criação
+                </span>
+                <h2 className="text-2xl font-serif text-[#3b3342]">Envie sua sugestão</h2>
+                <p className="text-xs text-[#6c5e75] max-w-sm mx-auto">
+                  Qual produto ou molde você gostaria que existisse? Sua ideia pode inspirar o próximo lançamento!
+                </p>
+              </div>
+
+              {enviadoSucesso && (
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-xl text-xs flex items-center gap-2 max-w-md mx-auto">
+                  <span>✨ Sua sugestão foi enviada e salva no mural com sucesso!</span>
+                </div>
+              )}
+
+              <form onSubmit={handleEnviarSugestao} className="space-y-4 max-w-md mx-auto relative z-10">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[#52465c]">Seu Nome</label>
+                  <input
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Ex: Ana Souza"
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs text-[#3b3342] outline-none focus:border-[#8c6b99] focus:bg-white transition-all shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[#52465c]">Sua ideia de molde</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={ideia}
+                    onChange={(e) => setIdeia(e.target.value)}
+                    placeholder="Descreva o molde (ex: Mini borboletas delicadas para chaveiros de resina)..."
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs text-[#3b3342] outline-none focus:border-[#8c6b99] focus:bg-white transition-all resize-none shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-[#52465c]">WhatsApp (Opcional)</label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="(00) 00000-0000"
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs text-[#3b3342] outline-none focus:border-[#8c6b99] focus:bg-white transition-all shadow-sm"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#6b2d4b] hover:bg-[#57233c] text-white text-xs font-semibold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 active:scale-[0.99]"
+                >
+                  {loading ? 'Enviando...' : 'Enviar sugestão'}
+                </button>
+              </form>
+            </section>
+
+          </main>
+
+          {mostraModalAdmin && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-4 shadow-xl border border-[#e5deeb]">
+                <h3 className="text-sm font-bold text-[#3b3342]">Acesso Criador</h3>
+                <form onSubmit={handleLoginAdmin} className="space-y-3">
+                  <input
+                    type="password"
+                    placeholder="Senha (padrão: 1234)"
+                    value={senhaInput}
+                    onChange={(e) => setSenhaInput(e.target.value)}
+                    className="w-full border border-[#dcd3e3] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#8c6b99]"
+                  />
+                  {erroSenha && <p className="text-[11px] text-red-500">Senha incorreta!</p>}
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button 
+                      type="button" 
+                      onClick={() => setMostraModalAdmin(false)} 
+                      className="px-3 py-1.5 text-xs text-[#6c5e75] hover:bg-[#f5f1f8] rounded-lg"
+                    >
+                      Cancelar
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="px-3 py-1.5 text-xs bg-[#8c6b99] text-white rounded-lg hover:bg-[#6b2d4b]"
+                    >
+                      Entrar
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
