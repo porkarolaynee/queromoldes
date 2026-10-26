@@ -1,0 +1,400 @@
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  onSnapshot, 
+  doc, 
+  updateDoc, 
+  increment, 
+  serverTimestamp 
+} from 'firebase/firestore';
+import { Heart, Lock, Unlock, Sparkles, Send, ExternalLink, ChevronRight } from 'lucide-react';
+
+// ============================================================================
+// 1. CONFIGURAÇÃO DO FIREBASE
+// Cole aqui as chaves que copiou das Configurações do Projeto no Firebase!
+// ============================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
+  authDomain: "quero-moldes.firebaseapp.com",
+ URL do banco de dados: "https://quero-moldes-default-rtdb.firebaseio.com",
+  projectId: "quero-moldes",
+  storageBucket: "quero-moldes.firebasestorage.app",
+ mensagemSenderId: "466176200603",
+  appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
+  measurementId: "G-95793WYVPC"}; Inicialize Firebaseconst app = initializeApp(firebaseConfig);const analytics = getAnalytics(app
+
+
+
+
+);
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// PRODUTOS DE EXEMPLO DO SEU PORTFÓLIO (Redireciona para a loja oficial)
+const PRODUTOS_PORTFOLIO = [
+  {
+    id: 1,
+    titulo: "Moldes PPULBATU",
+    categoria: "Mundo KDrama",
+    descricao: "Moldes de silicone exclusivos inspirados nos mascotes adoráveis para resina.",
+    imagem: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80",
+    url: "https://www.pedradaluamoldes.com.br"
+  },
+  {
+    id: 2,
+    titulo: "Broches Sailor Moon",
+    categoria: "Portal Otaku",
+    descricao: "Detalhes em alta precisão para peças celestiais e colecionáveis.",
+    imagem: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
+    url: "https://www.pedradaluamoldes.com.br"
+  },
+  {
+    id: 3,
+    titulo: "Chaveiros & Abridores BTS",
+    categoria: "Kawaii Vibes",
+    descricao: "Matrizes feitas sob medida para criar chaveiros perfeitos e funcionais.",
+    imagem: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80",
+    url: "https://www.pedradaluamoldes.com.br"
+  },
+  {
+    id: 4,
+    titulo: "Evoluções Eevee & Animais",
+    categoria: "Clube dos Baixinhos",
+    descricao: "Moldes translúcidos ideais para resina epóxi e artesanato criativo.",
+    imagem: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=400&q=80",
+    url: "https://www.pedradaluamoldes.com.br"
+  }
+];
+
+export default function App() {
+  const [sugestoes, setSugestoes] = useState([]);
+  const [ordenacao, setOrdenacao] = useState('curtidas');
+  const [nome, setNome] = useState('');
+  const [ideia, setIdeia] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [senhaInput, setSenhaInput] = useState('');
+  const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
+
+  // 2. ESCUTAR SUGESTÕES DO FIREBASE EM TEMPO REAL
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'sugestoes'), (snapshot) => {
+      const lista = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSugestoes(lista);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // 3. ENVIAR NOVA SUGESTÃO
+  const handleEnviarSugestao = async (e) => {
+    e.preventDefault();
+    if (!nome.trim() || !ideia.trim()) return;
+
+    setLoading(true);
+    try {
+      await addDoc(collection(db, 'sugestoes'), {
+        nome: nome.trim(),
+        ideia: ideia.trim(),
+        whatsapp: whatsapp.trim(),
+        curtidas: 0,
+        criadoEm: serverTimestamp()
+      });
+
+      setNome('');
+      setIdeia('');
+      setWhatsapp('');
+      alert('Sua sugestão foi enviada com sucesso! ✨');
+    } catch (error) {
+      console.error("Erro ao enviar sugestão:", error);
+      alert('Erro ao enviar sugestão. Verifique as regras de segurança do Firebase.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 4. INCREMENTAR CURTIDAS
+  const handleCurtir = async (id) => {
+    try {
+      const docRef = doc(db, 'sugestoes', id);
+      await updateDoc(docRef, {
+        curtidas: increment(1)
+      });
+    } catch (error) {
+      console.error("Erro ao curtir:", error);
+    }
+  };
+
+  // 5. ORDENAR AS IDEIAS (Mais curtidas ou mais recentes)
+  const sugestoesOrdenadas = [...sugestoes].sort((a, b) => {
+    if (ordenacao === 'curtidas') {
+      return (b.curtidas || 0) - (a.curtidas || 0);
+    }
+    return (b.criadoEm?.seconds || 0) - (a.criadoEm?.seconds || 0);
+  });
+
+  // 6. ACESSO PRIVADO DE ADMIN
+  const handleLoginAdmin = (e) => {
+    e.preventDefault();
+    if (senhaInput === '1234') { // Senha padrão (pode alterar aqui)
+      setIsAdmin(true);
+      setMostraModalAdmin(false);
+      setSenhaInput('');
+    } else {
+      alert('Senha incorreta!');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f7f5f9] text-[#4a4453] font-sans pb-16">
+      {/* CABEÇALHO */}
+      <header className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center border-b border-[#e5deeb]">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-[#8c6b99]" />
+          <span className="font-semibold text-sm tracking-wide text-[#6b5875]">Pedra da Lua Moldes</span>
+        </div>
+        
+        <button 
+          onClick={() => isAdmin ? setIsAdmin(false) : setMostraModalAdmin(true)}
+          className="flex items-center gap-1.5 text-xs bg-white border border-[#dcd3e3] px-3 py-1.5 rounded-full hover:bg-[#ede8f2] transition-colors"
+        >
+          {isAdmin ? (
+            <><Unlock className="w-3.5 h-3.5 text-green-600" /> Sair do Modo Criador</>
+          ) : (
+            <><Lock className="w-3.5 h-3.5 text-[#8c6b99]" /> Acesso Criador</>
+          )}
+        </button>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-4 pt-10 space-y-14">
+        
+        {/* APRESENTAÇÃO */}
+        <section className="text-center space-y-4">
+          <div className="w-24 h-24 mx-auto rounded-full bg-[#e8e2ee] border-2 border-[#cbbad6] p-1 shadow-sm overflow-hidden">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-[#8c6b99] text-xs font-semibold">
+              Pedra da Lua
+            </div>
+          </div>
+          <h1 className="text-2xl font-serif text-[#3b3342]">Criando juntas com amor e resina</h1>
+          <p className="text-sm text-[#73657a] max-w-lg mx-auto leading-relaxed">
+            Bem-vinda ao nosso espaço de criação! Ajude a escolher os próximos moldes de silicone que vão para a loja e vote nas ideias favoritas.
+          </p>
+        </section>
+
+        {/* CARROSSEL DE PORTFÓLIO */}
+        <section className="space-y-4">
+          <div className="flex justify-between items-end border-b border-[#e5deeb] pb-2">
+            <div>
+              <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">Conheça nosso trabalho</span>
+              <h2 className="text-lg font-serif text-[#3b3342]">Moldes & Coleções Atuais</h2>
+            </div>
+            <a 
+              href="https://www.pedradaluamoldes.com.br" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs text-[#8c6b99] hover:underline flex items-center gap-1 font-medium"
+            >
+              Ver loja completa <ChevronRight className="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin">
+            {PRODUTOS_PORTFOLIO.map((prod) => (
+              <div 
+                key={prod.id} 
+                className="min-w-[220px] sm:min-w-[240px] bg-white rounded-2xl p-3 border border-[#ede8f2] shadow-sm flex flex-col justify-between snap-start"
+              >
+                <div className="space-y-3">
+                  <div className="h-32 rounded-xl bg-[#f5f1f8] overflow-hidden relative">
+                    <img 
+                      src={prod.imagem} 
+                      alt={prod.titulo} 
+                      className="w-full h-full object-cover"
+                    />
+                    <span className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-[10px] text-[#6b5875] px-2 py-0.5 rounded-full font-medium">
+                      {prod.categoria}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-[#3b3342]">{prod.titulo}</h3>
+                    <p className="text-[11px] text-[#73657a] mt-1 leading-snug line-clamp-2">{prod.descricao}</p>
+                  </div>
+                </div>
+
+                <a 
+                  href={prod.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 text-[11px] font-medium text-[#6b2d4b] hover:text-[#57233c] bg-[#fbf5f8] border border-[#f0e2ea] py-1.5 px-3 rounded-xl flex items-center justify-center gap-1 transition-colors"
+                >
+                  <span>Ver no site</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* MURAL DE IDEIAS (LISTA PÚBLICA) */}
+        <section className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 border-b border-[#e5deeb] pb-3">
+            <div>
+              <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">A Comunidade Imagina Junto</span>
+              <h2 className="text-xl font-serif text-[#3b3342]">Ideias que podem virar realidade</h2>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-[#73657a]">Ordenar por:</span>
+              <select 
+                value={ordenacao}
+                onChange={(e) => setOrdenacao(e.target.value)}
+                className="bg-white border border-[#dcd3e3] rounded-lg px-2 py-1 text-xs text-[#4a4453] outline-none"
+              >
+                <option value="curtidas">Mais curtidas</option>
+                <option value="recentes">Mais recentes</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {sugestoesOrdenadas.length === 0 ? (
+              <p className="col-span-2 text-center text-sm text-[#93829e] py-8">
+                Nenhuma ideia enviada ainda. Seja a primeira a sugerir abaixo! ✨
+              </p>
+            ) : (
+              sugestoesOrdenadas.map((item) => (
+                <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
+                      {isAdmin && item.whatsapp && (
+                        <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200 font-mono">
+                          WhatsApp: {item.whatsapp}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
+                  </div>
+
+                  <div className="pt-2 flex justify-start">
+                    <button
+                      onClick={() => handleCurtir(item.id)}
+                      className="flex items-center gap-1.5 bg-[#fbf8fd] hover:bg-[#f3ebf7] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full transition-colors active:scale-95"
+                    >
+                      <Heart className="w-3.5 h-3.5 fill-current" />
+                      <span>{item.curtidas || 0}</span>
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* FORMULÁRIO */}
+        <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6">
+          <div className="text-center space-y-1">
+            <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">Sua voz faz parte da criação</span>
+            <h2 className="text-xl font-serif text-[#3b3342]">Envie sua sugestão</h2>
+            <p className="text-xs text-[#73657a]">Qual produto ou molde você gostaria que existisse? Sua ideia pode inspirar a próxima criação.</p>
+          </div>
+
+          <form onSubmit={handleEnviarSugestao} className="space-y-4 max-w-md mx-auto">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#584d61]">Nome</label>
+              <input
+                type="text"
+                required
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+                placeholder="Seu nome ou como quer ser chamada"
+                className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#8c6b99] transition-colors"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#584d61]">Sua ideia</label>
+              <textarea
+                required
+                rows={3}
+                value={ideia}
+                onChange={(e) => setIdeia(e.target.value)}
+                placeholder="Descreva o molde (ex: Mini borboletas para chaveiro)"
+                className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#8c6b99] transition-colors resize-none"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-[#584d61]">WhatsApp</label>
+              <input
+                type="tel"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="(00) 00000-0000"
+                className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none focus:border-[#8c6b99] transition-colors"
+              />
+              <p className="text-[11px] text-[#93829e] pt-0.5">
+                Privacidade: seu WhatsApp não aparece publicamente. Ele é usado apenas para avisos sobre um possível lançamento.
+              </p>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#6b2d4b] hover:bg-[#57233c] text-white text-xs font-medium py-3 rounded-xl transition-colors shadow-sm flex items-center justify-center gap-2"
+            >
+              {loading ? 'Enviando...' : (
+                <>
+                  <span>Enviar sugestão</span>
+                  <Send className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
+          </form>
+        </section>
+
+      </main>
+
+      {/* MODAL DE ADMIN */}
+      {mostraModalAdmin && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-4 shadow-xl">
+            <h3 className="text-sm font-semibold text-[#3b3342]">Acesso Criador</h3>
+            <p className="text-xs text-[#73657a]">Digite a senha de administrador para visualizar os números de WhatsApp cadastrados.</p>
+            <form onSubmit={handleLoginAdmin} className="space-y-3">
+              <input
+                type="password"
+                placeholder="Senha (padrão: 1234)"
+                value={senhaInput}
+                onChange={(e) => setSenhaInput(e.target.value)}
+                className="w-full border border-[#dcd3e3] rounded-lg px-3 py-2 text-xs outline-none"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMostraModalAdmin(false)}
+                  className="px-3 py-1.5 text-xs text-[#73657a]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-3 py-1.5 text-xs bg-[#8c6b99] text-white rounded-lg"
+                >
+                  Entrar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
