@@ -8,167 +8,106 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- React e ReactDOM (CDN v18) -->
+  <!-- React e ReactDOM -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   
   <!-- Babel para rodar JSX direto no navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="bg-[#f7f5f9] text-[#4a4453] font-sans antialiased selection:bg-[#e4d6ed] selection:text-[#57233c] pb-20">
+<body class="bg-[#f7f5f9] text-[#4a4453] font-sans pb-16">
   <div id="root"></div>
-
-  <!-- Scripts do Firebase v8 (App + Realtime Database) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <!-- Código da Aplicação -->
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // Configuração do Firebase
+    // Configuração do Firebase (pode manter as suas chaves aqui)
     const firebaseConfig = {
-      apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
-      authDomain: "quero-moldes.firebaseapp.com",
-      databaseURL: "https://quero-moldes-default-rtdb.firebaseio.com",
-      projectId: "quero-moldes",
-      storageBucket: "quero-moldes.firebasestorage.app",
-      messagingSenderId: "466176200603",
-      appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
-      measurementId: "G-95793WYVPC"
+      apiKey: "SUA_API_KEY_AQUI",
+      authDomain: "seu-projeto.firebaseapp.com",
+      projectId: "seu-projeto-id",
+      storageBucket: "seu-projeto.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
     };
 
+    // Inicialização segura do Firebase compatível com CDN
     let db = null;
     try {
-      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+      if (typeof firebase !== 'undefined') {
         firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
       }
-      db = firebase.database();
     } catch (e) {
-      console.error("Erro ao inicializar Firebase:", e);
+      console.log("Firebase carregando...");
     }
 
-    // PRODUTOS DO PORTFÓLIO
-    const INITIAL_PRODUCTS = [
+    const PRODUTOS_PORTFOLIO = [
       {
         id: 1,
         titulo: "Moldes PPULBATU",
         categoria: "Mundo KDrama",
-        descricao: "Moldes de silicone translúcidos e de alta precisão inspirados nos mascotes adoráveis para resina.",
-        imagem: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=500&q=80",
+        descricao: "Moldes de silicone exclusivos inspirados nos mascotes adoráveis para resina.",
+        imagem: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
         id: 2,
         titulo: "Broches Sailor Moon",
         categoria: "Portal Otaku",
-        descricao: "Detalhamento minucioso para criação de broches celestiais e peças reluzentes de colecionador.",
-        imagem: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=500&q=80",
+        descricao: "Detalhes em alta precisão para peças celestiais e colecionáveis.",
+        imagem: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
         id: 3,
         titulo: "Chaveiros & Abridores BTS",
         categoria: "Kawaii Vibes",
-        descricao: "Matrizes anatômicas feitas sob medida para chaveiros duráveis e funcionais em resina epóxi.",
-        imagem: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=500&q=80",
+        descricao: "Matrizes feitas sob medida para criar chaveiros perfeitos e funcionais.",
+        imagem: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=400&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       },
       {
         id: 4,
-        titulo: "Evoluções Eevee & Co.",
+        titulo: "Evoluções Eevee & Animais",
         categoria: "Clube dos Baixinhos",
-        descricao: "Moldes flexíveis de fácil desmolde para confecção de apliques e ornamentos encantadores.",
-        imagem: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=500&q=80",
+        descricao: "Moldes translúcidos ideais para resina epóxi e artesanato criativo.",
+        imagem: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=400&q=80",
         url: "https://www.pedradaluamoldes.com.br"
       }
     ];
 
-    // IDEIAS DE EXEMPLO FIXAS
-    const INITIAL_SUGGESTIONS = [
-      {
-        id: 'sug-1',
-        nome: 'Ana Clara',
-        ideia: 'Molde de bandeja oval com moldura de lua crescente e micro estrelas em relevo!',
-        whatsapp: '(11) 98765-4321',
-        curtidas: 24,
-        criadoEm: Date.now() - 86400000 * 2
-      },
-      {
-        id: 'sug-2',
-        nome: 'Erica Rezende',
-        ideia: 'Kit de moldes para mini marcadores de página com temática de flores delicadas e prensadas.',
-        whatsapp: '(21) 99887-1122',
-        curtidas: 18,
-        criadoEm: Date.now() - 86400000 * 4
-      },
-      {
-        id: 'sug-3',
-        nome: 'Clara Mendes',
-        ideia: 'Coleção de mini casinhas estilo vilarejo mágico para porta-chaves de parede.',
-        whatsapp: '(31) 97654-3344',
-        curtidas: 12,
-        criadoEm: Date.now() - 86400000
-      }
-    ];
-
     function App() {
-      const [sugestoesLocais, setSugestoesLocais] = useState([]);
+      const [sugestoes, setSugestoes] = useState([]);
       const [ordenacao, setOrdenacao] = useState('curtidas');
-      
       const [nome, setNome] = useState('');
       const [ideia, setIdeia] = useState('');
       const [whatsapp, setWhatsapp] = useState('');
-      const [enviadoSucesso, setEnviadoSucesso] = useState(false);
       const [loading, setLoading] = useState(false);
-
       const [isAdmin, setIsAdmin] = useState(false);
       const [senhaInput, setSenhaInput] = useState('');
       const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
-      const [erroSenha, setErroSenha] = useState(false);
 
-      // LEITURA DO FIREBASE EM TEMPO REAL
       useEffect(() => {
-        if (!db) return;
-        const ref = db.ref('sugestoes');
-        
-        const listener = ref.on('value', (snapshot) => {
-          const val = snapshot.val();
-          if (val) {
-            const listaFirebase = Object.keys(val).map(key => ({
-              id: key,
-              ...val[key]
-            }));
-            setSugestoesLocais(listaFirebase);
-          } else {
-            setSugestoesLocais([]);
-          }
-        }, (error) => {
-          console.error("Erro ao carregar do Realtime Database:", error);
+        if (!db) {
+          // Dados de exemplo caso o Firebase demore a carregar na CDN
+          setSugestoes([
+            { id: '1', nome: 'Mariana', ideia: 'Molde de gatinho fofinho estilo kawaii!', curtidas: 5 },
+            { id: '2', nome: 'Juliana', ideia: 'Moldes com tema estelar e luas.', curtidas: 3 }
+          ]);
+          return;
+        }
+        const unsubscribe = db.collection('sugestoes').onSnapshot((snapshot) => {
+          const lista = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          setSugestoes(lista);
         });
-
-        return () => ref.off('value', listener);
+        return () => unsubscribe();
       }, []);
 
-      // COMBINA AS SUGESTÕES ENVIADAS COM AS DE EXEMPLO
-      const todasSugestoes = [...sugestoesLocais, ...INITIAL_SUGGESTIONS];
-
-      // CURTIR SUGESTÃO
-      const handleCurtir = async (id) => {
-        if (db && !id.startsWith('sug-')) {
-          const itemRef = db.ref(`sugestoes/${id}/curtidas`);
-          itemRef.transaction((curtidasAtuais) => (curtidasAtuais || 0) + 1);
-        } else {
-          // Atualiza os de exemplo na memória
-          const itemIndex = INITIAL_SUGGESTIONS.findIndex(s => s.id === id);
-          if (itemIndex !== -1) {
-            INITIAL_SUGGESTIONS[itemIndex].curtidas += 1;
-            setSugestoesLocais([...sugestoesLocais]);
-          }
-        }
-      };
-
-      // ENVIAR SUGESTÃO
       const handleEnviarSugestao = async (e) => {
         e.preventDefault();
         if (!nome.trim() || !ideia.trim()) return;
@@ -176,92 +115,262 @@
         setLoading(true);
         try {
           if (db) {
-            const novaRef = db.ref('sugestoes').push();
-            await novaRef.set({
+            await db.collection('sugestoes').add({
               nome: nome.trim(),
               ideia: ideia.trim(),
               whatsapp: whatsapp.trim(),
               curtidas: 0,
-              criadoEm: Date.now()
+              criadoEm: firebase.firestore.FieldValue.serverTimestamp()
             });
           }
-
           setNome('');
           setIdeia('');
           setWhatsapp('');
-          setEnviadoSucesso(true);
-
-          setTimeout(() => setEnviadoSucesso(false), 4000);
+          alert('Sua sugestão foi enviada com sucesso! ✨');
         } catch (error) {
-          console.error("Erro ao enviar sugestão:", error);
-          alert('Erro ao enviar sugestão. Verifique a ligação.');
+          console.error("Erro ao enviar:", error);
+          alert('Erro ao enviar sugestão.');
         } finally {
           setLoading(false);
         }
       };
 
-      // LOGIN ADMIN
+      const handleCurtir = async (id) => {
+        try {
+          if (db) {
+            const docRef = db.collection('sugestoes').doc(id);
+            await docRef.update({
+              curtidas: firebase.firestore.FieldValue.increment(1)
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao curtir:", error);
+        }
+      };
+
+      const sugestoesOrdenadas = [...sugestoes].sort((a, b) => {
+        if (ordenacao === 'curtidas') {
+          return (b.curtidas || 0) - (a.curtidas || 0);
+        }
+        return 0;
+      });
+
       const handleLoginAdmin = (e) => {
         e.preventDefault();
         if (senhaInput === '1234') {
           setIsAdmin(true);
           setMostraModalAdmin(false);
           setSenhaInput('');
-          setErroSenha(false);
         } else {
-          setErroSenha(true);
+          alert('Senha incorreta!');
         }
       };
 
-      // ORDENAÇÃO
-      const sugestoesOrdenadas = [...todasSugestoes].sort((a, b) => {
-        if (ordenacao === 'curtidas') {
-          return (b.curtidas || 0) - (a.curtidas || 0);
-        }
-        return (b.criadoEm || 0) - (a.criadoEm || 0);
-      });
-
       return (
-        <div className="min-h-screen bg-[#f7f5f9] text-[#4a4453] font-sans antialiased selection:bg-[#e4d6ed] selection:text-[#57233c] pb-20">
-          
-          <header className="sticky top-0 z-40 bg-[#f7f5f9]/90 backdrop-blur-md border-b border-[#e5deeb]">
-            <div className="max-w-4xl mx-auto px-4 py-3.5 flex justify-between items-center">
-              <a 
-                href="https://www.pedradaluamoldes.com.br" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center gap-2 group"
-              >
-                <div className="w-8 h-8 rounded-full bg-[#8c6b99] flex items-center justify-center text-white shadow-sm group-hover:bg-[#6b2d4b] transition-colors">
-                  ✨
-                </div>
-                <div className="flex flex-col">
-                  <span className="font-serif font-bold text-base text-[#3b3342] leading-none group-hover:text-[#6b2d4b] transition-colors">
-                    Pedra da Lua
-                  </span>
-                  <span className="text-[10px] tracking-widest text-[#8c6b99] uppercase font-semibold">
-                    Moldes em Silicone
-                  </span>
-                </div>
-              </a>
-              
-              <button 
-                onClick={() => isAdmin ? setIsAdmin(false) : setMostraModalAdmin(true)}
-                className={`flex items-center gap-2 text-xs px-3.5 py-1.5 rounded-full border transition-all duration-200 shadow-sm ${
-                  isAdmin 
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                    : 'bg-white text-[#6b5875] border-[#dcd3e3] hover:bg-[#ede8f2] hover:text-[#3b3342]'
-                }`}
-              >
-                {isAdmin ? '🔓 Modo Criador Ativo' : '🔒 Acesso Criador'}
-              </button>
+        <div className="min-h-screen pb-16">
+          <header className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center border-b border-[#e5deeb]">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm tracking-wide text-[#6b5875]">✨ Pedra da Lua Moldes</span>
             </div>
+            
+            <button 
+              onClick={() => isAdmin ? setIsAdmin(false) : setMostraModalAdmin(true)}
+              className="flex items-center gap-1.5 text-xs bg-white border border-[#dcd3e3] px-3 py-1.5 rounded-full hover:bg-[#ede8f2] transition-colors"
+            >
+              {isAdmin ? 'Sair do Modo Criador' : 'Acesso Criador'}
+            </button>
           </header>
 
-          <main className="max-w-3xl mx-auto px-4 pt-8 sm:pt-12 space-y-16">
-            
-            <section className="text-center space-y-5">
-              <div className="relative w-28 h-28 mx-auto">
-                <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#dad6df] via-[#e8e2ee] to-[#f4eef8] p-1 shadow-md">
-                  <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center text-[#8c6b99] border border-[#e5deeb] overflow-hidden">
-                    <span className="text-2
+          <main className="max-w-3xl mx-auto px-4 pt-10 space-y-14">
+            <section className="text-center space-y-4">
+              <!-- Foto de Apresentação -->
+              <div className="flex justify-center">
+                <img 
+                  src="https://lh3.googleusercontent.com/rd-gg/AJWXcNd4KSTsnPBR2frF6TXAwxuyGvk6JOVpckAv2_yfmqZgv8aSbW8ucSxu6ZZuXv9eE_Lh1I5fkYVYdyMaf_Tr1rn6eghM2zeaNB0EKXTtu9zRZuTnlVAPkIEuFtZMcQnMFcQlDU0RIyp2PIEoX7irR7gdvxZP05zE0AQVxuetDkYF4LianoDHlAGLkRPJqn0z9dG8--0klGktdW0yiPmRLWA1wP14BdcIFIkQcaIcOlUaP3td3-vOq3-93iT1gX938Wr3oSFZ3cYsF8lXeg0yGTDpPd5HQWJUgHfpKMVgFf09xTPQYbpwWO28drXEHQ8KZmXedEx3EmwEMpx57Bm-N6ONmA4s13cM1Vi3qhHXBoisTG3d_VJ7U3SrUyQBq7L0sVAKfg7ejLnIdBYEZzuuD_ZtwTB8hCWntj5zVMbSV6DJXiUvZiA15dORyJCCb1em6QFFXQcWkvwCujWZR1MjQYkw2F1u3Pw3lRjnc_Y2fVmJ-l3yy2uQm5gHKRo4x4vbvS7pdk7sJ0gO1GnAcCq75aBMlzr1R1pNPcaSRHixkqnKgXN8DtjlC2Q9idrOLI3CITryj8qdKrDHyJmL9oRDUnaSS6Z8k98P69worZXC7UH5wFJAcYWm0xl0NCoIpVyi_U9rLat5EARef_gwwFl3UpDAVsowauP3zhDrWa2cA1dHH1ew80EVuFqpQQ9ou5NM47ju-hiZRM1dugd8NAgLcZFGI9rwDpkFQTeDp-g9N3FilqZIvTJG_fng0nPm5datQHIWxNU3bkUMD4mWdRo7Uq8zM70ArYR3WuPs45oVvgo0dqjotqxPvxnXw6izlpBHSyZQGl8Zswbr60rSivZe0Pc0uhF_wV3I_RntE8Dt5o6cRELMFlaqVSvqhxIp8GsmQVzWN8Cyyhai-uNocm-p8tcTo7fTOuCLlyRZZJA8Az-CDdKDXJPuH8ajR8yLa5ioQ3qCsSo2TgQgZfw9A_vuJ7yDZA2yYXLZWIBSpyJ_vvrbvC9sfJU_K9G6jWqsaAW_TsUZPOCeezhECBHMpUmGsJNs4gZ8nhzROofp1JWLGyiIYv7ysujYh0hu54XCc-BBJgylZha--iDMQxXyWkAH1A1_i2WEsJCBHkUGhoxnHAtSLXsyWH1oH1L2Ant9OmvBRmNHhAAz3uszQn29U4vWiOrlic5oPoUCpE6h-rnZNoJgzm7vsTXD5TcRGZeC-32oPs2duSZaNMiStr0apCDJufQBGL5r0vaxzCnMJ0bkdy08WLUFjoWVaVlaWFnGK1koua1Ptq4di1-6FY_593Un7DTtGntuP9RKaJq87ga7bHgCidePyNQoPJAmdylD6ZGYdOuiRnG_1sgUcSLRvkwNWsswimdlR7yw7DC4sWQ3jx6yACnOduHcyAKHB4tUzczrikTC5xb0V-wkaug1kqRxKDB5vbYxnrRzQi-bzv0nHSwqkOiruZPIg3Ni_ZS_oIGxRiHBgWzbjhV8mh7jw9UBUJHKtADsE_6QE3ok2my5xEnYMYOAPQCSdtRGtvu3jr_aJFNSEJ3To7MXvws-QtKy1dlzIIlYrJhDsTYMe3EutTWDhyhqTkhrDk0=s1600" 
+                  alt="Pedra da Lua Moldes" 
+                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover shadow-md border-4 border-white"
+                />
+              </div>
+              <h1 className="text-2xl font-serif text-[#3b3342]">Criando juntas com amor e resina</h1>
+              <p className="text-sm text-[#73657a] max-w-lg mx-auto leading-relaxed">
+                Bem-vinda ao nosso espaço de criação! Ajude a escolher os próximos moldes de silicone que vão para a loja e vote nas ideias favoritas.
+              </p>
+            </section>
+
+            <section className="space-y-4">
+              <div className="flex justify-between items-end border-b border-[#e5deeb] pb-2">
+                <div>
+                  <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">Conheça nosso trabalho</span>
+                  <h2 className="text-lg font-serif text-[#3b3342]">Moldes & Coleções Atuais</h2>
+                </div>
+                <a 
+                  href="https://www.pedradaluamoldes.com.br" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#8c6b99] hover:underline font-medium"
+                >
+                  Ver loja completa &rarr;
+                </a>
+              </div>
+
+              <div className="flex gap-4 overflow-x-auto pb-4 pt-1">
+                {PRODUTOS_PORTFOLIO.map((prod) => (
+                  <div key={prod.id} className="min-w-[220px] sm:min-w-[240px] bg-white rounded-2xl p-3 border border-[#ede8f2] shadow-sm flex flex-col justify-between">
+                    <div className="space-y-3">
+                      <div className="h-32 rounded-xl bg-[#f5f1f8] overflow-hidden relative">
+                        <img src={prod.imagem} alt={prod.titulo} className="w-full h-full object-cover" />
+                        <span className="absolute top-2 left-2 bg-white/90 text-[10px] text-[#6b5875] px-2 py-0.5 rounded-full font-medium">
+                          {prod.categoria}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-xs font-semibold text-[#3b3342]">{prod.titulo}</h3>
+                        <p className="text-[11px] text-[#73657a] mt-1 line-clamp-2">{prod.descricao}</p>
+                      </div>
+                    </div>
+                    <a 
+                      href={prod.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 text-[11px] font-medium text-[#6b2d4b] bg-[#fbf5f8] border border-[#f0e2ea] py-1.5 px-3 rounded-xl flex items-center justify-center gap-1"
+                    >
+                      Ver no site
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="space-y-6">
+              <div className="flex justify-between items-end border-b border-[#e5deeb] pb-3">
+                <div>
+                  <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">A Comunidade Imagina Junto</span>
+                  <h2 className="text-xl font-serif text-[#3b3342]">Ideias sugeridas</h2>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {sugestoesOrdenadas.map((item) => (
+                  <div key={item.id} className="bg-white rounded-2xl p-5 shadow-sm border border-[#ede8f2] flex flex-col justify-between space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-sm text-[#3b3342]">{item.nome}</span>
+                        {isAdmin && item.whatsapp && (
+                          <span className="text-[11px] bg-[#eef7ee] text-green-700 px-2 py-0.5 rounded border border-green-200">
+                            WhatsApp: {item.whatsapp}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#62556b] leading-relaxed">{item.ideia}</p>
+                    </div>
+
+                    <button
+                      onClick={() => handleCurtir(item.id)}
+                      className="flex items-center gap-1.5 bg-[#fbf8fd] border border-[#e8dbe8] text-[#8c6b99] text-xs px-3 py-1.5 rounded-full w-fit"
+                    >
+                      ❤️ <span>{item.curtidas || 0}</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6">
+              <div className="text-center space-y-1">
+                <span className="text-[11px] uppercase tracking-widest text-[#93829e] font-semibold">Sua voz faz parte da criação</span>
+                <h2 className="text-xl font-serif text-[#3b3342]">Envie sua sugestão</h2>
+              </div>
+
+              <form onSubmit={handleEnviarSugestao} className="space-y-4 max-w-md mx-auto">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-[#584d61]">Nome</label>
+                  <input
+                    type="text"
+                    required
+                    value={nome}
+                    onChange={(e) => setNome(e.target.value)}
+                    placeholder="Seu nome"
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-[#584d61]">Sua ideia</label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={ideia}
+                    onChange={(e) => setIdeia(e.target.value)}
+                    placeholder="Descreva o molde..."
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none resize-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-[#584d61]">WhatsApp</label>
+                  <input
+                    type="tel"
+                    value={whatsapp}
+                    onChange={(e) => setWhatsapp(e.target.value)}
+                    placeholder="(00) 00000-0000"
+                    className="w-full bg-[#fcfbfe] border border-[#dcd3e3] rounded-xl px-3.5 py-2.5 text-xs outline-none"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#6b2d4b] text-white text-xs font-medium py-3 rounded-xl shadow-sm"
+                >
+                  {loading ? 'Enviando...' : 'Enviar sugestão'}
+                </button>
+              </form>
+            </section>
+          </main>
+
+          {mostraModalAdmin && (
+            <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-4 shadow-xl">
+                <h3 className="text-sm font-semibold text-[#3b3342]">Acesso Criador</h3>
+                <form onSubmit={handleLoginAdmin} className="space-y-3">
+                  <input
+                    type="password"
+                    placeholder="Senha (padrão: 1234)"
+                    value={senhaInput}
+                    onChange={(e) => setSenhaInput(e.target.value)}
+                    className="w-full border border-[#dcd3e3] rounded-lg px-3 py-2 text-xs outline-none"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button type="button" onClick={() => setMostraModalAdmin(false)} className="px-3 py-1.5 text-xs text-[#73657a]">Cancelar</button>
+                    <button type="submit" className="px-3 py-1.5 text-xs bg-[#8c6b99] text-white rounded-lg">Entrar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+
+      // Carregar o script do Firebase no navegador se necessário
+    }
+
+    const scripts = [
+      "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js",
+      "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"
+    ];
+
+    let loadedCount = 0;
+    scripts.forEach(src => {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = () => {
+        loadedCount++;
+        if (loadedCount === scripts.length) {
+          ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        }
+      };
+      document.head.appendChild(s);
+    });
+  </script>
+</body>
+</html>
