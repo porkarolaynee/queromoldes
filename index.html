@@ -127,20 +127,20 @@
       const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
       const [erroSenha, setErroSenha] = useState(false);
 
-      // SINCRONIZAR COM O FIREBASE FIRESTORE EM TEMPO REAL
+      // SINCRONIZAR COM O FIRESTORE E JUNTAR COM OS EXEMPLOS
       useEffect(() => {
         if (!db) return;
         const unsubscribe = db.collection('sugestoes').onSnapshot((snapshot) => {
-          if (!snapshot.empty) {
-            const lista = snapshot.docs.map(doc => ({
-              id: doc.id,
-              ...doc.data()
-            }));
-            // Se houver dados no banco, usa eles combinados com os exemplos
-            setSugestoes(prev => {
-              // Mantém os iniciais se não existirem no banco, ou usa o banco
-              return lista.length > 0 ? lista : INITIAL_SUGGESTIONS;
-            });
+          const listaFirestore = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+
+          // Junta os dados reais do banco com os exemplos iniciais para manter tudo integrado
+          if (listaFirestore.length > 0) {
+            setSugestoes([...listaFirestore, ...INITIAL_SUGGESTIONS]);
+          } else {
+            setSugestoes(INITIAL_SUGGESTIONS);
           }
         }, (error) => {
           console.error("Erro ao carregar do Firestore:", error);
@@ -150,56 +150,43 @@
 
       // CURTIR SUGESTÃO
       const handleCurtir = async (id) => {
-        // Atualização visual imediata
-        setSugestoes(prev => prev.map(item => {
-          if (item.id === id) {
-            return { ...item, curtidas: (item.curtidas || 0) + 1 };
-          }
-          return item;
-        }));
-
-        // Atualização no Firebase se for documento real do banco
         try {
           if (db && !id.startsWith('sug-')) {
             const docRef = db.collection('sugestoes').doc(id);
             await docRef.update({
               curtidas: firebase.firestore.FieldValue.increment(1)
             });
+          } else {
+            // Se for curtida nos itens de exemplo locais
+            setSugestoes(prev => prev.map(item => {
+              if (item.id === id) {
+                return { ...item, curtidas: (item.curtidas || 0) + 1 };
+              }
+              return item;
+            }));
           }
         } catch (error) {
           console.error("Erro ao atualizar curtida:", error);
         }
       };
 
-      // ENVIAR NOVA SUGESTÃO
+      // ENVIAR NOVA SUGESTÃO PARA O FIRESTORE
       const handleEnviarSugestao = async (e) => {
         e.preventDefault();
         if (!nome.trim() || !ideia.trim()) return;
 
         setLoading(true);
         try {
-          const novaIdeiaData = {
-            nome: nome.trim(),
-            ideia: ideia.trim(),
-            whatsapp: whatsapp.trim(),
-            curtidas: 0,
-            criadoEm: Date.now()
-          };
-
           if (db) {
             await db.collection('sugestoes').add({
-              ...novaIdeiaData,
-              criadoEmServer: firebase.firestore.FieldValue.serverTimestamp()
+              nome: nome.trim(),
+              ideia: ideia.trim(),
+              whatsapp: whatsapp.trim(),
+              curtidas: 0,
+              criadoEm: Date.now()
             });
           }
 
-          // Adiciona localmente também para feedback instantâneo
-          const novaSugestaoLocal = {
-            id: `sug-${Date.now()}`,
-            ...novaIdeiaData
-          };
-
-          setSugestoes(prev => [novaSugestaoLocal, ...prev]);
           setNome('');
           setIdeia('');
           setWhatsapp('');
@@ -208,7 +195,7 @@
           setTimeout(() => setEnviadoSucesso(false), 4000);
         } catch (error) {
           console.error("Erro ao enviar sugestão:", error);
-          alert('Erro ao enviar sugestão. Verifique a conexão.');
+          alert('Erro ao enviar sugestão. Verifique se publicou as regras no Cloud Firestore.');
         } finally {
           setLoading(false);
         }
