@@ -202,7 +202,7 @@
       // LOGIN ADMIN
       const handleLoginAdmin = (e) => {
         e.preventDefault();
-        if (senhaInput === '1234') {
+        if (senhaInput === '2307') {
           setIsAdmin(true);
           setMostraModalAdmin(false);
           setSenhaInput('');
@@ -236,7 +236,7 @@
                 </div>
                 <div className="flex flex-col">
                   <span className="font-serif font-bold text-base text-[#3b3342] leading-none group-hover:text-[#6b2d4b] transition-colors">
-                    Pedra da Lua - MOLDES
+                    Pedra da Lua 
                   </span>
                   <span className="text-[10px] tracking-widest text-[#8c6b99] uppercase font-semibold">
                     Por: karolayne
@@ -491,7 +491,7 @@
                 <form onSubmit={handleLoginAdmin} className="space-y-3">
                   <input
                     type="password"
-                    placeholder="Senha (padrão: 1234)"
+                    placeholder="Senha (padrão: 2307)"
                     value={senhaInput}
                     onChange={(e) => setSenhaInput(e.target.value)}
                     className="w-full border border-[#dcd3e3] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#8c6b99]"
