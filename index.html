@@ -243,10 +243,20 @@
         }
       };
 
-      // ROLAGEM SUAVE ATÉ O FORMULÁRIO
-      const scrollToForm = () => {
-        document.getElementById('formulario-sugestao')?.scrollIntoView({ behavior: 'smooth' });
-      };
+      // ROLAGEM SUAVE COM COMPENSAÇÃO DO HEADER
+const scrollToForm = () => {
+  const formElement = document.getElementById('formulario-sugestao');
+  if (formElement) {
+    const headerOffset = 80; // compensação do cabeçalho fixo
+    const elementPosition = formElement.getBoundingClientRect().top;
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    });
+  }
+};
 
       // ORDENAÇÃO
       const sugestoesOrdenadas = [...todasSugestoes].sort((a, b) => {
@@ -411,7 +421,7 @@
             </section>
 
             {/* FORMULÁRIO DE ENVIAR SUGESTÃO */}
-            <section id="formulario-sugestao" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6 relative overflow-hidden">
+            <section id="formulario-sugestao" className="scroll-mt-24 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6 relative overflow-hidden">
               <div className="text-center space-y-1.5 relative z-10">
                 <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
                   Sua ideia é o caminho para criação
