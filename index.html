@@ -46,4 +46,126 @@
 
     // Configuração do Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau
+      apiKey: "AIzaSyAJUP92sx6PKit9E1YYZppKeIhMau_X3LU",
+      authDomain: "quero-moldes.firebaseapp.com",
+      databaseURL: "https://quero-moldes-default-rtdb.firebaseio.com",
+      projectId: "quero-moldes",
+      storageBucket: "quero-moldes.firebasestorage.app",
+      messagingSenderId: "466176200603",
+      appId: "1:466176200603:web:285b9fc5f133aa3e79db3e",
+      measurementId: "G-95793WYVPC"
+    };
+
+    let db = null;
+    try {
+      if (typeof firebase !== 'undefined' && !firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      db = firebase.database();
+    } catch (e) {
+      console.error("Erro ao inicializar Firebase:", e);
+    }
+
+    // PRODUTOS DO PORTFÓLIO
+    const INITIAL_PRODUCTS = [
+      {
+        id: 1,
+        titulo: "Moldes PPULBATU",
+        categoria: "Mundo KDrama",
+        descricao: "Moldes de silicone translúcidos e de alta precisão inspirados nos mascotes adoráveis para resina.",
+        imagem: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=500&q=80",
+        url: "https://www.pedradaluamoldes.com.br"
+      },
+      {
+        id: 2,
+        titulo: "Broches Sailor Moon",
+        categoria: "Portal Otaku",
+        descricao: "Detalhamento minucioso para criação de broches celestiais e peças reluzentes de colecionador.",
+        imagem: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=500&q=80",
+        url: "https://www.pedradaluamoldes.com.br"
+      },
+      {
+        id: 3,
+        titulo: "Chaveiros & Abridores BTS",
+        categoria: "Kawaii Vibes",
+        descricao: "Matrizes anatômicas feitas sob medida para chaveiros duráveis e funcionais em resina epóxi.",
+        imagem: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=500&q=80",
+        url: "https://www.pedradaluamoldes.com.br"
+      },
+      {
+        id: 4,
+        titulo: "Evoluções Eevee & Co.",
+        categoria: "Clube dos Baixinhos",
+        descricao: "Moldes flexíveis de fácil desmolde para confecção de apliques e ornamentos encantadores.",
+        imagem: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=500&q=80",
+        url: "https://www.pedradaluamoldes.com.br"
+      }
+    ];
+
+    // IDEIAS DE EXEMPLO FIXAS
+    const INITIAL_SUGGESTIONS = [
+      {
+        id: 'sug-1',
+        nome: 'Ana Clara',
+        ideia: 'Molde de bandeja oval com moldura de lua crescente e micro estrelas em relevo!',
+        whatsapp: '(11) 98765-4321',
+        curtidas: 24,
+        criadoEm: Date.now() - 86400000 * 2
+      },
+      {
+        id: 'sug-2',
+        nome: 'Bia Rezende',
+        ideia: 'Kit de moldes para mini marcadores de página com temática de flores delicadas e prensadas.',
+        whatsapp: '(21) 99887-1122',
+        curtidas: 18,
+        criadoEm: Date.now() - 86400000 * 4
+      },
+      {
+        id: 'sug-3',
+        nome: 'Clara Mendes',
+        ideia: 'Coleção de mini casinhas estilo vilarejo mágico para porta-chaves de parede.',
+        whatsapp: '(31) 97654-3344',
+        curtidas: 12,
+        criadoEm: Date.now() - 86400000
+      }
+    ];
+
+    function App() {
+      const [sugestoesLocais, setSugestoesLocais] = useState([]);
+      const [ordenacao, setOrdenacao] = useState('curtidas');
+      
+      const [nome, setNome] = useState('');
+      const [ideia, setIdeia] = useState('');
+      const [whatsapp, setWhatsapp] = useState('');
+      const [enviadoSucesso, setEnviadoSucesso] = useState(false);
+      const [loading, setLoading] = useState(false);
+
+      const [isAdmin, setIsAdmin] = useState(false);
+      const [senhaInput, setSenhaInput] = useState('');
+      const [mostraModalAdmin, setMostraModalAdmin] = useState(false);
+      const [erroSenha, setErroSenha] = useState(false);
+
+      // LEITURA DO FIREBASE EM TEMPO REAL
+      useEffect(() => {
+        if (!db) return;
+        const ref = db.ref('sugestoes');
+        
+        const listener = ref.on('value', (snapshot) => {
+          const val = snapshot.val();
+          if (val) {
+            const listaFirebase = Object.keys(val).map(key => ({
+              id: key,
+              ...val[key]
+            }));
+            setSugestoesLocais(listaFirebase);
+          } else {
+            setSugestoesLocais([]);
+          }
+        }, (error) => {
+          console.error("Erro ao carregar do Realtime Database:", error);
+        });
+
+        return () => ref.off('value', listener);
+      }, []);
+
+      //
