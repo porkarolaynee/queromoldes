@@ -14,6 +14,24 @@
   
   <!-- Babel para rodar JSX direto no navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Estilos Customizados para a Borda Gradiente -->
+  <style>
+    .borda-perfil-gradiente {
+      padding: 4px; 
+      background: linear-gradient(135deg, #8c6b99, #6b2d4b);
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .borda-perfil-gradiente img {
+      border-radius: 50%;
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body class="bg-[#f7f5f9] text-[#4a4453] font-sans antialiased selection:bg-[#e4d6ed] selection:text-[#57233c] pb-20">
   <div id="root"></div>
@@ -212,6 +230,11 @@
         }
       };
 
+      // ROLAGEM SUAVE ATÉ O FORMULÁRIO
+      const scrollToForm = () => {
+        document.getElementById('formulario-sugestao')?.scrollIntoView({ behavior: 'smooth' });
+      };
+
       // ORDENAÇÃO
       const sugestoesOrdenadas = [...todasSugestoes].sort((a, b) => {
         if (ordenacao === 'curtidas') {
@@ -259,19 +282,17 @@
 
           <main className="max-w-3xl mx-auto px-4 pt-8 sm:pt-12 space-y-16">
             
+            {/* SEÇÃO PRINCIPAL (FOTO COM BORDA GRADIENTE E APRESENTAÇÃO) */}
             <section className="text-center space-y-5">
-              <div className="relative w-44 h-44 sm:w-48 sm:h-48 mx-auto">
-                <div className="w-full h-full rounded-full bg-gradient-to-tr from-[#dad6df] via-[#e8e2ee] to-[#f4eef8] p-1 shadow-md">
-                  <div className="w-full h-full rounded-full bg-white flex flex-col items-center justify-center border border-[#e5deeb] overflow-hidden">
-                    <img 
-                      src="https://i.postimg.cc/LsyhTgWV/watermarked-img-18337851670360034752.jpg" 
-                      alt="Pedra da Lua Moldes" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+              <div className="relative w-44 h-44 sm:w-48 sm:h-48 mx-auto flex items-center justify-center">
+                <div className="borda-perfil-gradiente w-full h-full shadow-lg">
+                  <img 
+                    src="https://i.postimg.cc/LsyhTgWV/watermarked-img-18337851670360034752.jpg" 
+                    alt="Karolayne - Pedra da Lua Moldes" 
+                  />
                 </div>
-                <span className="absolute bottom-1 right-1 bg-[#6b2d4b] text-white p-1.5 rounded-full shadow-sm text-xs">
-                💜
+                <span className="absolute bottom-1 right-1 bg-[#6b2d4b] text-white p-1.5 rounded-full shadow-md text-xs border-2 border-white">
+                  💜
                 </span>
               </div>
 
@@ -279,83 +300,26 @@
                 <span className="text-xs uppercase tracking-widest text-[#8c6b99] font-bold bg-[#ede8f2] px-3 py-1 rounded-full border border-[#e0d6e8]">
                   Karolayne
                 </span>
-                <h1 className="text-lg font-serif text-[#3b3342] pt-1 leading-sung">
-               Criadora e fundadora da Pedra da Lua — que ama transformar ideias lúdicas em moldes de alta perfomace. 🌙✨
+                <h1 className="text-lg font-serif text-[#3b3342] pt-1 leading-snug">
+                  Criadora e fundadora da Pedra da Lua — que ama transformar ideias lúdicas em moldes de alta performance. 🌙✨
                 </h1>
               </div>
 
               <p className="text-base text-[#6c5e75] max-w-md mx-auto leading-relaxed">
-                 Esta é a sua oportunidade de criar um molde com a PDL: deixe a sua sugestão para o próximo lançamento e vote nas suas ideias favoritas!
+                Esta é a sua oportunidade de criar um molde com a PDL: deixe a sua sugestão para o próximo lançamento e vote nas suas ideias favoritas!
               </p>
               
               <div className="flex justify-center gap-3 pt-2">
-                <a 
-                  href="https://www.pedradaluamoldes.com.br" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#6b2d4b] hover:bg-[#57233c] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all hover:-translate-y-0.5"
+                <button 
+                  onClick={scrollToForm}
+                  className="inline-flex items-center gap-2 bg-[#6b2d4b] hover:bg-[#57233c] text-white text-xs font-semibold px-5 py-3 rounded-full shadow-md transition-all hover:-translate-y-0.5 active:scale-95"
                 >
-                  🛍️ <span>Loja oficial</span>
-                </a>
+                  💡 <span>Sugerir uma ideia</span>
+                </button>
               </div>
             </section>
 
-            <section className="space-y-5">
-              <div className="flex justify-between items-end border-b border-[#e5deeb] pb-3">
-                <div>
-                  <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
-                    Um pouco do meu portfólio
-                  </span>
-                  <h2 className="text-xl font-serif text-[#3b3342]">Coleções lançadas</h2>
-                </div>
-                <a 
-                  href="https://www.pedradaluamoldes.com.br" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-[#6b2d4b] hover:underline flex items-center gap-1 font-semibold"
-                >
-                  <span>Ver loja completa &rarr;</span>
-                </a>
-              </div>
-
-              <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin">
-                {INITIAL_PRODUCTS.map((prod) => (
-                  <div 
-                    key={prod.id} 
-                    className="min-w-[240px] sm:min-w-[260px] max-w-[260px] bg-white rounded-2xl p-3.5 border border-[#ede8f2] shadow-sm flex flex-col justify-between snap-start hover:shadow-md transition-shadow"
-                  >
-                    <div className="space-y-3">
-                      <div className="h-36 rounded-xl bg-[#f5f1f8] overflow-hidden relative group">
-                        <img 
-                          src={prod.imagem} 
-                          alt={prod.titulo} 
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <span className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-[10px] text-[#57233c] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
-                          {prod.categoria}
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        <h3 className="text-xs font-bold text-[#3b3342]">{prod.titulo}</h3>
-                        <p className="text-[11px] text-[#6c5e75] leading-relaxed line-clamp-2">
-                          {prod.descricao}
-                        </p>
-                      </div>
-                    </div>
-
-                    <a 
-                      href={prod.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 text-[11px] font-semibold text-[#6b2d4b] hover:text-[#57233c] bg-[#fbf5f8] hover:bg-[#f5e9f0] border border-[#f0e2ea] py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <span>Ver no site</span>
-                    </a>
-                  </div>
-                ))}
-              </div>
-            </section>
-
+            {/* MURAL DE IDÉIAS E VOTAÇÃO */}
             <section className="space-y-6">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 border-b border-[#e5deeb] pb-3">
                 <div>
@@ -418,7 +382,8 @@
               </div>
             </section>
 
-            <section className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6 relative overflow-hidden">
+            {/* FORMULÁRIO DE ENVIAR SUGESTÃO */}
+            <section id="formulario-sugestao" className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-[#eae3ef] space-y-6 relative overflow-hidden">
               <div className="text-center space-y-1.5 relative z-10">
                 <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
                   Sua ideia é o caminho para criação
@@ -481,8 +446,66 @@
               </form>
             </section>
 
+            {/* PORTFÓLIO DE COLEÇÕES (POSICIONADO NO FIM DA PÁGINA) */}
+            <section className="space-y-5 pt-4">
+              <div className="flex justify-between items-end border-b border-[#e5deeb] pb-3">
+                <div>
+                  <span className="text-[11px] uppercase tracking-widest text-[#8c6b99] font-bold">
+                    Um pouco do meu portfólio
+                  </span>
+                  <h2 className="text-xl font-serif text-[#3b3342]">Coleções lançadas</h2>
+                </div>
+                <a 
+                  href="https://www.pedradaluamoldes.com.br" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#6b2d4b] hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <span>Ver loja completa &rarr;</span>
+                </a>
+              </div>
+
+              <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin">
+                {INITIAL_PRODUCTS.map((prod) => (
+                  <div 
+                    key={prod.id} 
+                    className="min-w-[240px] sm:min-w-[260px] max-w-[260px] bg-white rounded-2xl p-3.5 border border-[#ede8f2] shadow-sm flex flex-col justify-between snap-start hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-3">
+                      <div className="h-36 rounded-xl bg-[#f5f1f8] overflow-hidden relative group">
+                        <img 
+                          src={prod.imagem} 
+                          alt={prod.titulo} 
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <span className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-[10px] text-[#57233c] font-bold px-2.5 py-0.5 rounded-full shadow-sm">
+                          {prod.categoria}
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-xs font-bold text-[#3b3342]">{prod.titulo}</h3>
+                        <p className="text-[11px] text-[#6c5e75] leading-relaxed line-clamp-2">
+                          {prod.descricao}
+                        </p>
+                      </div>
+                    </div>
+
+                    <a 
+                      href={prod.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 text-[11px] font-semibold text-[#6b2d4b] hover:text-[#57233c] bg-[#fbf5f8] hover:bg-[#f5e9f0] border border-[#f0e2ea] py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <span>Ver no site</span>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </section>
+
           </main>
 
+          {/* MODAL DE AUTENTICAÇÃO DO CRIADOR */}
           {mostraModalAdmin && (
             <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
               <div className="bg-white rounded-2xl p-6 max-w-xs w-full space-y-4 shadow-xl border border-[#e5deeb]">
@@ -490,7 +513,7 @@
                 <form onSubmit={handleLoginAdmin} className="space-y-3">
                   <input
                     type="password"
-                    placeholder="Senha (padrão: 0000)"
+                    placeholder="Senha"
                     value={senhaInput}
                     onChange={(e) => setSenhaInput(e.target.value)}
                     className="w-full border border-[#dcd3e3] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#8c6b99]"
